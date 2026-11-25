@@ -11,7 +11,7 @@ https://production-ai-agent-szsp.onrender.com
 | Service | Loại | Ghi chú |
 |---|---|---|
 | `production-ai-agent` | Web Service (Docker) | Build từ `06-lab-complete/Dockerfile`, health check `/health` |
-| `agent-redis` | Key Value (Redis) | Chỉ truy cập nội bộ (`ipAllowList: []`), `maxmemoryPolicy: noeviction` |
+| `agent-redis` | Key Value (Valkey 8, tương thích Redis) | Chỉ truy cập nội bộ (`ipAllowList: []`), `maxmemoryPolicy: noeviction` |
 
 Code deploy chính là agent Part 6 trong `06-lab-complete/` (không phải app mẫu `03-cloud-deployment/`).
 
