@@ -201,8 +201,24 @@ Nhận xét thêm: dòng log của agent là
 
 > Theo CHECKPOINTS CP6, lớp K5 deploy chính agent trong `06-lab-complete/`.
 
-- Nền tảng chính: _(điền sau khi deploy)_
-- URL: _(điền sau khi deploy)_ — chi tiết và ảnh trong [DEPLOYMENT.md](DEPLOYMENT.md)
+- Nền tảng chính: **Render** (Exercise 3.2) — Blueprint `06-lab-complete/render.yaml`, tạo cả web service Docker lẫn Redis (Key Value).
+- URL: **https://production-ai-agent-szsp.onrender.com** — chi tiết, biến môi trường và ảnh trong [DEPLOYMENT.md](DEPLOYMENT.md).
+- `AGENT_API_KEY` do Render sinh (`generateValue: true`), `REDIS_URL` nối từ service Redis, không ghi giá trị nào trong code.
+
+4 lệnh tự kiểm của CP6 (chỉ in mã HTTP):
+
+```text
+$ curl -sS -o /dev/null -w '%{http_code}\n' "$BASE/health"
+200
+$ curl -sS -o /dev/null -w '%{http_code}\n' "$BASE/ready"
+200
+$ curl -sS -o /dev/null -w '%{http_code}\n' -X POST "$BASE/ask" -H 'Content-Type: application/json' -d '{"question":"Hello"}'
+401
+$ curl -sS -o /dev/null -w '%{http_code}\n' -X POST "$BASE/ask" -H 'Content-Type: application/json' -H "X-API-Key: $AGENT_API_KEY" -d '{"question":"Hello"}'
+200
+```
+
+Ảnh: [screenshots/dashboard.png](screenshots/dashboard.png), [screenshots/running.png](screenshots/running.png), [screenshots/test.png](screenshots/test.png).
 
 ### So sánh `railway.toml` và `render.yaml` (06-lab-complete)
 
@@ -462,6 +478,15 @@ Một số dòng chi tiết từ cùng lần chạy:
 ✅ Khi chạy: mọi dòng log của app là JSON hợp lệ — 17 dòng JSON
 ✅ Khi chạy: SIGTERM lúc đang có request → request vẫn 200, process tự thoát — exit code 0
 ✅ Docker: `docker stop` tắt êm (exit code 0, < 10s) — exit code 0, 0.9s
+```
+
+Sau khi deploy, chạy lại kèm URL public:
+
+```text
+$ python check_production_ready.py --public-url https://production-ai-agent-szsp.onrender.com
+     ✅ Public URL: GET https://production-ai-agent-szsp.onrender.com/health → 200
+  Result: 12/12 tiêu chí đạt · 44/44 checks passed
+  🎉 PASS 12/12 — PRODUCTION READY! Deploy nào!
 ```
 
 **Ghi chú môi trường:** máy mình chưa có distro WSL2 nào (chỉ có `docker-desktop`), chạy bằng Python Windows thì mục graceful shutdown luôn ⚠️. Mình chạy script **không sửa gì** trong một container `python:3.11-slim` có Docker CLI, mount repo + `/var/run/docker.sock`, `--network host`:
